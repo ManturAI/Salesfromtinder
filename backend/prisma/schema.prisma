@@ -1,0 +1,68 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  telegramId   String   @unique
+  username     String?
+  firstName    String?
+  lastName     String?
+  role         Role     @default(USER)
+  createdAt    DateTime @default(now())
+  lessons      Lesson[]
+}
+
+model Topic {
+  id          Int      @id @default(autoincrement())
+  title       String
+  slug        String   @unique
+  description String?
+  icon        String?
+  lessons     Lesson[]
+  subtopics   Subtopic[]
+  createdAt   DateTime @default(now())
+}
+
+model Lesson {
+  id          Int      @id @default(autoincrement())
+  title       String
+  slug        String   @unique
+  description String?
+  icon        String?
+  topicId     Int?
+  topic       Topic?   @relation(fields: [topicId], references: [id])
+  subtopicId  Int?
+  subtopic    Subtopic? @relation(fields: [subtopicId], references: [id])
+  section     LessonSection?
+  authorId    Int?
+  author      User?    @relation(fields: [authorId], references: [id])
+  createdAt   DateTime @default(now())
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model Subtopic {
+  id          Int      @id @default(autoincrement())
+  title       String
+  slug        String   @unique
+  description String?
+  icon        String?
+  topicId     Int
+  topic       Topic    @relation(fields: [topicId], references: [id])
+  lessons     Lesson[]
+  createdAt   DateTime @default(now())
+}
+
+enum LessonSection {
+  SPRINT
+  ARCHIVE
+}
